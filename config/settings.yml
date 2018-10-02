@@ -1,0 +1,7 @@
+maxmind:
+  csv:
+    folder_path: ./db/GeoLite2-City/
+    city_ipv4_filename: GeoLite2-City-Blocks-IPv4.csv
+    city_locale_filename_template: "GeoLite2-City-Locations-%{locale}.csv"
+    locales: ['de', 'en', 'es', 'fr', 'ja', 'pt-BR', 'ru', 'zh-CN']
+  db_file_path: db/maxminddb/GeoLite2-City.mmdb
