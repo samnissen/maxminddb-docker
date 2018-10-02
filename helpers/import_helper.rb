@@ -1,10 +1,10 @@
 require 'csv'
 
 module ImportHelper
-  FOLDER_PATH = Settings.maxmindb.csv.folder_path
-  CITY_IPV4_FILENAME = Settings.maxmindb.csv.city_ipv4_filename
-  CITY_LOCALE_FILENAME_TEMPLATE = Settings.maxmindb.csv.city_locale_filename_template
-  LOCALES = Settings.maxmindb.csv.locales
+  FOLDER_PATH = Settings.maxmind.csv.folder_path
+  CITY_IPV4_FILENAME = Settings.maxmind.csv.city_ipv4_filename
+  CITY_LOCALE_FILENAME_TEMPLATE = Settings.maxmind.csv.city_locale_filename_template
+  LOCALES = Settings.maxmind.csv.locales
 
   def import_cities_networks_and_locations
     counter   = 0

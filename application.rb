@@ -28,7 +28,9 @@ get '/api' do
   param :city,     String, scope: :location
   param :region,   String, scope: :location
 
-  location = LocationGetter.(params: params)
+  location = ByIpGetter.perform(params[:ip]) ||
+             ByLocationGetter.perform(params[:location]) ||
+             {}
 
   status(404) if location.empty?
 

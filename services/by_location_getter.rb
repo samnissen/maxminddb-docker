@@ -1,35 +1,29 @@
-class LocationGetter
+class ByLocationGetter
   LOCALITY_TYPES = {
     country: 'country'.freeze,
     region:  'region'.freeze,
     city:    'city'.freeze
   }
 
-  def self.call(*args)
+  def self.perform(*args)
     new(*args).perform
   end
 
-  attr_reader :ip_param, :country_param, :region_param, :city_param, :location
+  attr_reader :country_param, :region_param, :city_param, :location
 
-  def initialize(params:)
-    @ip_param      = params.fetch(:ip, '').strip
-    @country_param = params.dig(:location, :country)&.strip || ''
-    @region_param  = params.dig(:location, :region)&.strip  || ''
-    @city_param    = params.dig(:location, :city)&.strip    || ''
+  def initialize(location_params)
+    @country_param = (location_params[:country] || '').strip
+    @region_param  = (location_params[:region]  || '').strip
+    @city_param    = (location_params[:city]    || '').strip
   end
 
   def perform
-    find_network || find_city || find_region || find_country
+    find_city || find_region || find_country
 
-    location.blank? ? {} : location
+    location
   end
 
   private
-
-  def find_network
-    return false if ip_param.blank?
-    @location = MaxMindDB.new('db/maxminddb/GeoLite2-City.mmdb').lookup(ip_param).to_hash
-  end
 
   def find_city
     return false if city_param.blank? || cities.empty? || !is_unique_city?

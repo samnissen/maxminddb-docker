@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-RSpec.describe LocationGetter do
+RSpec.describe ByLocationGetter do
 
-  subject { described_class.(params: params) }
+  subject { described_class.perform(location_params) }
 
-  describe '#perorm' do
+  describe '#perform' do
     let(:locality_country) { described_class::LOCALITY_TYPES[:country] }
     let(:locality_region) { described_class::LOCALITY_TYPES[:region] }
     let(:locality_city) { described_class::LOCALITY_TYPES[:city] }
@@ -14,7 +14,7 @@ RSpec.describe LocationGetter do
     let(:not_existing_city_name) { 'Consonno' }
 
     let(:location) { {country: country, region: region, city: city} }
-    let(:params) { {location: location} }
+    let(:location_params) { location }
 
     let(:expected_result) do
       {
@@ -66,11 +66,11 @@ RSpec.describe LocationGetter do
       it_behaves_like 'with expected result'
     end
 
-    shared_examples 'returns empty hash' do |country, region, city|
+    shared_examples 'unsuccessful search result' do |country, region, city|
       let(:location) { {country: country, region: region, city: city} }
 
-      it 'returns empty hash' do
-        expect(subject).to eq({})
+      it 'returns nil' do
+        expect(subject).to eq(nil)
       end
     end
 
@@ -85,7 +85,7 @@ RSpec.describe LocationGetter do
 
     params_collection = country_params.product(region_params).product(city_params).map(&:flatten)
 
-    shared_examples 'with unique cuontry, region and city' do
+    shared_examples 'with unique country, region and city' do
       params_collection.each do |params|
         country, region, city = params
 
@@ -97,7 +97,7 @@ RSpec.describe LocationGetter do
           elsif country.present? && !country.eql?(not_existing_country_name)
             'returns country'
           else
-            'returns empty hash'
+            'unsuccessful search result'
           end
 
         it_behaves_like scenario, *params
@@ -125,7 +125,7 @@ RSpec.describe LocationGetter do
           elsif country_present
             'returns country'
           else
-            'returns empty hash'
+            'unsuccessful search result'
           end
 
         it_behaves_like scenario, *params
@@ -150,7 +150,7 @@ RSpec.describe LocationGetter do
           elsif country.present? && !country.eql?(not_existing_country_name)
             'returns country'
           else
-            'returns empty hash'
+            'unsuccessful search result'
           end
 
         it_behaves_like scenario, *params
@@ -176,14 +176,14 @@ RSpec.describe LocationGetter do
           elsif country.present? && !country.eql?(not_existing_country_name)
             'returns country'
           else
-            'returns empty hash'
+            'unsuccessful search result'
           end
 
         it_behaves_like scenario, *params
       end
     end
 
-    it_behaves_like 'with unique cuontry, region and city'
+    it_behaves_like 'with unique country, region and city'
     it_behaves_like 'with no unique city'
     it_behaves_like 'with no unique region'
     it_behaves_like 'with no unique region and city'

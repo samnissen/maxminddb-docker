@@ -4,6 +4,10 @@ resource "Get Location by IP address" do
   let(:ip) { '1.2.3.4' }
   let(:expected_reault) { {"accuracy_radius"=>1000, "latitude"=>37.751, "longitude"=>-97.822} }
 
+  before do
+    allow(MaxMindDB).to receive_message_chain(:new, :lookup).and_return(location: expected_reault)
+  end
+
   get '/api' do
     parameter :ip, 'IP address', type: 'String'
 
