@@ -29,10 +29,9 @@ get '/api' do
   param :region,   String, scope: :location
 
   location = ByIpGetter.perform(params[:ip]) ||
-             ByLocationGetter.perform(params[:location]) ||
-             {}
+             ByLocationGetter.perform(params[:location])
 
-  status(404) if location.empty?
+  status(404) and return {}.to_json unless location
 
   location.to_json
 end

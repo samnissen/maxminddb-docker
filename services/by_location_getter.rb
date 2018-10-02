@@ -12,6 +12,8 @@ class ByLocationGetter
   attr_reader :country_param, :region_param, :city_param, :location
 
   def initialize(location_params)
+    return unless location_params
+
     @country_param = (location_params[:country] || '').strip
     @region_param  = (location_params[:region]  || '').strip
     @city_param    = (location_params[:city]    || '').strip
