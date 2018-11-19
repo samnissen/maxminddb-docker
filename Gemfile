@@ -10,6 +10,7 @@ gem 'countries'
 gem 'settingslogic', '~> 2.0', '>= 2.0.9'
 gem 'maxminddb', '~> 0.1.11'
 gem 'rake'
+gem 'rack', '>= 2.0.6'
 
 group :test, :development do
   gem 'pry'
