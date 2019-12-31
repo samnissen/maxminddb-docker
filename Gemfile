@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.5.0'
+ruby '2.6.5'
 
 gem 'sinatra', require: false
 gem "sinatra-param", require: "sinatra/param"

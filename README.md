@@ -6,9 +6,32 @@ utilizing the Ruby gem [maxminddb](https://github.com/yhirose/maxminddb/), and a
 
 Allows you to find locality by IP address or by name of country, region, city. Search options support different languages. See all supported languages on the [GeoIP2](https://dev.maxmind.com/geoip/geoip2/web-services/#Languages) page.
 
+## NEW: Before using it
+
+Maxmind has had to put its database behind login for reasons detailed
+in [this issue](https://github.com/samnissen/maxminddb-docker/issues/4).
+This means that the link to download the database is unique to you, and
+might only work for a limited amount of time -- see Maxmind documentation
+for more information.
+
+The result is you must set two build arguments &ndash;
+URLs which must be found on the Maxmind dashboard,
+and using your API key, which you must retrieve after registering, and
+modify per Maxmind's instructions.
+
+The `maxmind_geolite2_city_link` is the link for the GZIP-ed GeoLite2-City
+database, and the `maxmind_geolite2_city_csv_link` is the ZIP-ed
+GeoLite2-City-CSV, which can be found on the GeoIP2 > Download Files section
+of the Maxmind account page as of December 2019. Notice the `token` key
+has been replaced with `license_key`, per instructions.
+
 ## Using it
 
 ```
+docker build \
+--build-arg maxmind_geolite2_city_link="https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&date=20501231&license_key=abcdefghijklmnop&suffix=tar.gz" \
+--build-arg maxmind_geolite2_city_csv_link="https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City-CSV&date=20501231&license_key=abcdefghijklmnop&suffix=zip" \
+-t maxminddb https://raw.githubusercontent.com/samnissen/maxminddb-docker/master/Dockerfile
 docker run --restart=always -p 8080:8080 -d -it samnissen/maxminddb
 
 curl -XGET localhost:8080/api -d 'ip=1.2.3.4'
@@ -83,7 +106,10 @@ git clone git@github.com:samnissen/maxminddb-docker.git
 
 In config/settings.yml edit GeoLite2-City-CSV folder path, City-IPv4-Blocks file path, GeoLite2-City-Locations file path template and add or remove supported languages.
 ```
-docker build -t maxminddb .
+docker build \
+--build-arg maxmind_geolite2_city_link="https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&date=20501231&license_key=abcdefghijklmnop&suffix=tar.gz" \
+--build-arg maxmind_geolite2_city_csv_link="https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City-CSV&date=20501231&license_key=abcdefghijklmnop&suffix=zip" \
+-t maxminddb .
 ```
 
 ##### Warning

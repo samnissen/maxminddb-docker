@@ -1,5 +1,5 @@
 
-FROM ruby:2.5.0
+FROM ruby:2.6
 
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
@@ -20,14 +20,17 @@ WORKDIR /maxminddb
 
 COPY . ./
 
-RUN wget http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz
+ARG maxmind_geolite2_city_link
+ARG maxmind_geolite2_city_csv_link
+
+RUN wget -O GeoLite2-City.tar.gz ${maxmind_geolite2_city_link}
 RUN tar -xvzf GeoLite2-City.tar.gz && mv GeoLite2-City_* db/maxminddb
 
-RUN wget http://geolite.maxmind.com/download/geoip/database/GeoLite2-City-CSV.zip
+RUN wget -O GeoLite2-City-CSV.zip ${maxmind_geolite2_city_csv_link}
 RUN unzip GeoLite2-City-CSV.zip && mv GeoLite2-City-CSV_* db/GeoLite2-City
 
 RUN bundle install
-RUN rake db:convert
+RUN bundle exec rake db:convert
 
 EXPOSE 8080
 
