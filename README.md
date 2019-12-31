@@ -2,9 +2,9 @@
 
 Push-button deployment of a dockerized JSON web server
 to host [MaxMind's free GeoCity2 Lite database](http://maxmind.github.io/MaxMind-DB/)
-utilizing the Ruby gem [maxminddb](https://github.com/yhirose/maxminddb/), and SQLite database version.
+utilizing the Ruby gem [maxminddb](https://github.com/yhirose/maxminddb/), and a SQLite database.
 
-Allows to find locality by ip address or by name of country, region, city. Search options support different languages, see all supported languages on the [GeoIP2](https://dev.maxmind.com/geoip/geoip2/web-services/#Languages) page.
+Allows you to find locality by IP address or by name of country, region, city. Search options support different languages. See all supported languages on the [GeoIP2](https://dev.maxmind.com/geoip/geoip2/web-services/#Languages) page.
 
 ## Using it
 
@@ -39,7 +39,7 @@ curl -XGET localhost:8080/api -d 'location[city]=Xexeu'
 =>{"ip":"167.250.18.0/25","location":{"latitude":"-8.8647","longitude":"-35.6427","locality_type":"city"}}
 ```
 
-The result is always one point of the location with one network, that is, if you are looking for a city by name, and in the world there are many such cities, then you will get an empty hash, but if this city name is unique, you will get a successful search result.
+The result is always one point of the location with one network. That is, if you are looking for a city by name, and in the world there are many such cities, then you will get an empty hash, but if this city name is unique, you will get a successful search result.
 
 For example. Xexeu the city in Brazil with unique city name
 ```
@@ -76,15 +76,19 @@ curl -XGET localhost:8080/api -d 'location[country]=USA&location[region]=Ohio&lo
 =>{"ip":"12.54.76.0/23","location":{"latitude":"39.8979","longitude":"-83.3866","locality_type":"city"}}
 ```
 
-#### Or, build it in your own image
+#### Or, build your own image
 ```
 git clone git@github.com:samnissen/maxminddb-docker.git
 ```
+
 In config/settings.yml edit GeoLite2-City-CSV folder path, City-IPv4-Blocks file path, GeoLite2-City-Locations file path template and add or remove supported languages.
 ```
 docker build -t maxminddb .
 ```
-Attention, during build, the GeoIP2 database is converted into a SQLite database - it can take up to a few hours.
+
+##### Warning
+During build, the GeoIP2 database is converted into a SQLite database - it can take up to a few hours.
+
 ```
 docker run --restart=always -p 8080:8080 -d -it maxminddb
 
