@@ -43,9 +43,13 @@ curl -XGET localhost:8080/api -d 'location[city]=Xexeu'
 #=> { "ip":"167.250.18.0/25","location":{"latitude":"-8.8647","longitude":"-35.6427","locality_type":"city"}}
 ```
 
-The result is always one point of the location with one network. That is, if you are looking for a city by name, and in the world there are many such cities, then you will get an empty hash, but if this city name is unique, you will get a successful search result.
+The result is always one point of the location with one network.
+That is, if you are looking for a city by name,
+and in the world there are many such cities,
+then you will get an empty hash. But if this city name is unique,
+you will get a successful search result.
 
-For example. Xexeu the city in Brazil with unique city name
+For example, the city of Xexeu in Brazil is unique:
 ```
 curl -XGET localhost:8080/api -d 'location[city]=Xexeu'
 #=> { "ip":"167.250.18.0/25","location":{"latitude":"-8.8647","longitude":"-35.6427","locality_type":"city"}}
@@ -55,7 +59,7 @@ curl -XGET localhost:8080/api -d 'location[country]=Brazil&location[region]=Pern
 #=> { "ip":"167.250.18.0/25","location":{"latitude":"-8.8647","longitude":"-35.6427","locality_type":"city"}}
 ```
 
-Paris in Canada, cities with this name are also present in France and the United States
+Cities with the name Paris are present in France, United States and Canada:
 ```
 curl -XGET localhost:8080/api -d 'location[city]=Paris'
 #=> { }
@@ -66,7 +70,7 @@ curl -XGET localhost:8080/api -d 'location[country]=Canada&location[city]=Paris'
 #=> { "ip":"65.92.52.0/24","location":{"latitude":"43.2000","longitude":"-80.3833","locality_type":"city"}}
 ```
 
-London in the United States is present in several states: Arkansas, Kentucky, Ohio, Texas
+London in the United States is present in several states:
 ```
 curl -XGET localhost:8080/api -d 'location[city]=London'
 #=> { }
