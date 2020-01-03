@@ -1,3 +1,4 @@
+# syntax = docker/dockerfile:1.0-experimental
 
 FROM ruby:2.6
 
@@ -20,13 +21,10 @@ WORKDIR /maxminddb
 
 COPY . ./
 
-ARG maxmind_geolite2_city_link
-ARG maxmind_geolite2_city_csv_link
-
-RUN wget -O GeoLite2-City.tar.gz ${maxmind_geolite2_city_link}
+RUN --mount=type=secret,id=geolite2citytar wget -nv -O GeoLite2-City.tar.gz -i /run/secrets/geolite2citytar
 RUN tar -xvzf GeoLite2-City.tar.gz && mv GeoLite2-City_* db/maxminddb
 
-RUN wget -O GeoLite2-City-CSV.zip ${maxmind_geolite2_city_csv_link}
+RUN --mount=type=secret,id=geolite2citycsv wget -nv -O GeoLite2-City-CSV.zip "$(cat /run/secrets/geolite2citycsv)"
 RUN unzip GeoLite2-City-CSV.zip && mv GeoLite2-City-CSV_* db/GeoLite2-City
 
 RUN bundle install

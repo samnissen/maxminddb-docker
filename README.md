@@ -14,24 +14,39 @@ This means that the link to download the database is unique to you, and
 might only work for a limited amount of time -- see Maxmind documentation
 for more information.
 
-The result is you must set two build arguments &ndash;
-URLs which must be found on the Maxmind dashboard,
-and using your API key, which you must retrieve after registering, and
-modify per Maxmind's instructions.
+This results in multiple changes:
 
-The `maxmind_geolite2_city_link` is the link for the GZIP-ed GeoLite2-City
-database, and the `maxmind_geolite2_city_csv_link` is the ZIP-ed
-GeoLite2-City-CSV, which can be found on the GeoIP2 > Download Files section
-of the Maxmind account page as of December 2019. Notice the `token` key
-has been replaced with `license_key`, per instructions.
+1) You must register to Maxmina dn retrieve two
+URLs which must be found on the Maxmind dashboard,
+on the GeoIP2 > Download Files section
+of the Maxmind account page as of December 2019.
+These URLs must be modified using your API key per Maxmind's instructions.
+(The `token` key has been replaced with `license_key`, for instance.)
+
+2) These URLs must be saved in the `secrets` directory
+with any naming convention you prefer. Note that for this README,
+the files are named:
+- `geolite2citytar` is the link for the GZIP-ed GeoLite2-City database, and
+- `geolite2citycsv` is the ZIP-ed GeoLite2-City-CSV file
+
+3) These links must be used during build, and
+so you must build the container yourself.
+
+## Warning
+During build, the GeoIP2 database is converted into a SQLite database -
+it will likely take hours to build the image.
 
 ## Using it
 
 ```
-docker build \
---build-arg maxmind_geolite2_city_link="https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&date=20501231&license_key=abcdefghijklmnop&suffix=tar.gz" \
---build-arg maxmind_geolite2_city_csv_link="https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City-CSV&date=20501231&license_key=abcdefghijklmnop&suffix=zip" \
+DOCKER_BUILDKIT=1 docker build \
+--no-cache \
+--progress=plain \
+--secret id=geolite2citytar,src=secrets/geolite2citytar.txt \
+--secret id=geolite2citycsv,src=secrets/geolite2citycsv.txt \
+--squash \
 -t maxminddb https://raw.githubusercontent.com/samnissen/maxminddb-docker/master/Dockerfile
+
 docker run --restart=always -p 8080:8080 -d -it samnissen/maxminddb
 
 curl -XGET localhost:8080/api -d 'ip=8.8.4.4'
@@ -106,24 +121,21 @@ git clone git@github.com:samnissen/maxminddb-docker.git
 
 In config/settings.yml edit GeoLite2-City-CSV folder path, City-IPv4-Blocks file path, GeoLite2-City-Locations file path template and add or remove supported languages.
 ```
-docker build \
---build-arg maxmind_geolite2_city_link="https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&date=20501231&license_key=abcdefghijklmnop&suffix=tar.gz" \
---build-arg maxmind_geolite2_city_csv_link="https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City-CSV&date=20501231&license_key=abcdefghijklmnop&suffix=zip" \
+DOCKER_BUILDKIT=1 docker build \
+--no-cache \
+--progress=plain \
+--secret id=geolite2citytar,src=secrets/geolite2citytar.txt \
+--secret id=geolite2citycsv,src=secrets/geolite2citycsv.txt \
+--squash \
 -t maxminddb .
-```
 
-##### Warning
-During build, the GeoIP2 database is converted into a SQLite database -
-it will likely take hours to build the image.
-
-```
 docker run --restart=always -p 8080:8080 -d -it maxminddb
 
-curl -XGET localhost:8080/api -d 'ip=1.2.3.4'
-#=> { "continent":{"code":"NA","geoname_id":6255149,"names":{"de":"Nordamerika","en":"North America","es":"Norteamérica","fr":"Amérique du Nord","ja":"北アメリカ","pt-BR":"América do Norte","ru":"Северная Америка","zh-CN":"北美洲"}},"country":{"geoname_id":6252001,"iso_code":"US","names":{"de":"USA","en":"United States","es":"Estados Unidos","fr":"États-Unis","ja":"アメリカ合衆国","pt-BR":"Estados Unidos","ru":"США","zh-CN":"美国"}},"location":{"accuracy_radius":1000,"latitude":37.751,"longitude":-97.822},"registered_country":{"geoname_id":2077456,"iso_code":"AU","names":{"de":"Australien","en":"Australia","es":"Australia","fr":"Australie","ja":"オーストラリア","pt-BR":"Austrália","ru":"Австралия","zh-CN":"澳大利亚"}}}
+curl -XGET localhost:8080/api -d 'ip=8.8.4.4'
+#=> {"continent":{"code":"NA","geoname_id":6255149,"names":{"de":"Nordamerika","en":"North America","es":"Norteamérica","fr":"Amérique du Nord","ja":"北アメリカ","pt-BR":"América do Norte","ru":"Северная Америка","zh-CN":"北美洲"}},"country":{"geoname_id":6252001,"iso_code":"US","names":{"de":"USA","en":"United States","es":"Estados Unidos","fr":"États-Unis","ja":"アメリカ合衆国","pt-BR":"Estados Unidos","ru":"США","zh-CN":"美国"}},"location":{"accuracy_radius":1000,"latitude":37.751,"longitude":-97.822,"time_zone":"America/Chicago"},"registered_country":{"geoname_id":6252001,"iso_code":"US","names":{"de":"USA","en":"United States","es":"Estados Unidos","fr":"États-Unis","ja":"アメリカ合衆国","pt-BR":"Estados Unidos","ru":"США","zh-CN":"美国"}},"network":"8.8.0.0/17"}
 
 curl -XGET localhost:8080/api -d 'location[city]=London&location[region]=ENG&location[country]=GBR'
-#=> {"ip":"2.16.37.0/24","location":{"latitude":"51.5142","longitude":"-0.0931","locality_type":"city"}}
+#=> {"ip":"2.16.37.0/24","location":{"latitude":"51.5088","longitude":"-0.1260","locality_type":"city"}}
 ```
 
 ## Contributing
