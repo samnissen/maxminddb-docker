@@ -1,0 +1,40 @@
+secrets/
+
+.git
+.gitignore
+README.md
+
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+.env
+.env.sample
+*.rbc
+capybara-*.html
+log
+tmp
+db/*.sqlite3
+db/*.sqlite3-journal
+public/system
+coverage/
+spec/tmp
+**.orig
+.bundle
+.ruby-version
+.ruby-gemset
+.rvmrc
+vendor/assets/bower_components
+*.bowerrc
+bower.json
+
+# https://gist.github.com/neckhair/ace5d1679dd896b71403fda4bc217b9e
