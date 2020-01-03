@@ -4,49 +4,15 @@ Push-button deployment of a dockerized JSON web server
 to host [MaxMind's free GeoCity2 Lite database](http://maxmind.github.io/MaxMind-DB/)
 utilizing the Ruby gem [maxminddb](https://github.com/yhirose/maxminddb/), and a SQLite database.
 
-Allows you to find locality by IP address or by name of country, region, city. Search options support different languages. See all supported languages on the [GeoIP2](https://dev.maxmind.com/geoip/geoip2/web-services/#Languages) page.
-
-## NEW: Before using it
-
-Maxmind has had to put its database behind login for reasons detailed
-in [this issue](https://github.com/samnissen/maxminddb-docker/issues/4).
-This means that the link to download the database is unique to you, and
-might only work for a limited amount of time -- see Maxmind documentation
-for more information.
-
-This results in multiple changes:
-
-1) You must register to Maxmina dn retrieve two
-URLs which must be found on the Maxmind dashboard,
-on the GeoIP2 > Download Files section
-of the Maxmind account page as of December 2019.
-These URLs must be modified using your API key per Maxmind's instructions.
-(The `token` key has been replaced with `license_key`, for instance.)
-
-2) These URLs must be saved in the `secrets` directory
-with any naming convention you prefer. Note that for this README,
-the files are named:
-- `geolite2citytar` is the link for the GZIP-ed GeoLite2-City database, and
-- `geolite2citycsv` is the ZIP-ed GeoLite2-City-CSV file
-
-3) These links must be used during build, and
-so you must build the container yourself.
-
-## Warning
-During build, the GeoIP2 database is converted into a SQLite database -
-it will likely take hours to build the image.
+maxminddb-docker allows you geolocate by IP address
+or by name of country, region, and/or city.
+Search options support different languages, based on
+the supported languages on the
+[GeoIP2](https://dev.maxmind.com/geoip/geoip2/web-services/#Languages) page.
 
 ## Using it
 
 ```
-DOCKER_BUILDKIT=1 docker build \
---no-cache \
---progress=plain \
---secret id=geolite2citytar,src=secrets/geolite2citytar.txt \
---secret id=geolite2citycsv,src=secrets/geolite2citycsv.txt \
---squash \
--t maxminddb https://raw.githubusercontent.com/samnissen/maxminddb-docker/master/Dockerfile
-
 docker run --restart=always -p 8080:8080 -d -it samnissen/maxminddb
 
 curl -XGET localhost:8080/api -d 'ip=8.8.4.4'
@@ -114,13 +80,48 @@ curl -XGET localhost:8080/api -d 'location[country]=USA&location[region]=Ohio&lo
 #=> {"ip":"12.54.76.0/23","location":{"latitude":"39.8979","longitude":"-83.3866","locality_type":"city"}}
 ```
 
-#### Or, build your own image
+## Or, build your own image
+
+### NEW: Register before building it
+
+Maxmind has had to put its database behind login
+for reasons detailed
+in [this issue](https://github.com/samnissen/maxminddb-docker/issues/4).
+This means that the link to download the database is unique to you,
+and might only work for a limited amount of time &ndash;
+see Maxmind documentation for more information.
+
+This results in multiple changes:
+
+1) You must
+[register to Maxmind](https://www.maxmind.com/en/geolite2/signup)
+and retrieve two URLs found on the Maxmind dashboard,
+on the `GeoIP2` > `Download Files` section
+of the Maxmind account page as of December 2019.
+These URLs must be modified using your API key per Maxmind's instructions.
+(The `token` key has been replaced with `license_key`, for instance.)
+
+2) These URLs must be saved in the `secrets` directory
+with any naming convention you prefer. Note that for this README,
+the files are named:
+- `geolite2citytar` is the link for the GZIP-ed GeoLite2-City database, and
+- `geolite2citycsv` is the ZIP-ed GeoLite2-City-CSV file
+
+3) These links must be used in the `build` to identify your secrets' `src`s.
+The `id`s must remain unchanged, as they correspond to the Dockerfile.
+
+### Warning
+During build, the GeoIP2 database is converted into a SQLite database -
+it will likely take hours to build the image.
+
+### Configuring options
+In `config/settings.yml` edit GeoLite2-City-CSV folder path,
+City-IPv4-Blocks file path, GeoLite2-City-Locations file path
+template and add or remove supported languages.
+
 ```
 git clone git@github.com:samnissen/maxminddb-docker.git
-```
 
-In config/settings.yml edit GeoLite2-City-CSV folder path, City-IPv4-Blocks file path, GeoLite2-City-Locations file path template and add or remove supported languages.
-```
 DOCKER_BUILDKIT=1 docker build \
 --no-cache \
 --progress=plain \
