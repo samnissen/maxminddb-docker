@@ -96,16 +96,16 @@ This results in multiple changes:
 1) You must
 [register to Maxmind](https://www.maxmind.com/en/geolite2/signup)
 and retrieve two URLs found on the Maxmind dashboard,
-on the `GeoIP2` > `Download Files` section
-of the Maxmind account page as of December 2019.
+in the `GeoIP2` > `Download Files` section
+of the Maxmind account page (as of December 2019).
 These URLs must be modified using your API key per Maxmind's instructions.
 (The `token` key has been replaced with `license_key`, for instance.)
 
-2) These URLs must be saved in the `secrets` directory
+2) These URLs must be saved in `.txt` files in the `secrets` directory
 with any naming convention you prefer. Note that for this README,
 the files are named:
-- `geolite2citytar` is the link for the GZIP-ed GeoLite2-City database, and
-- `geolite2citycsv` is the ZIP-ed GeoLite2-City-CSV file
+- `secrets/geolite2citytar.txt` should contain your unique URL for the GZIP-ed GeoLite2-City database, and
+- `secrets/geolite2citycsv.txt` should contain your unique URL for the ZIP-ed GeoLite2-City-CSV file
 
 3) These links must be used in the `build` to identify your secrets' `src`s.
 The `id`s must remain unchanged, as they correspond to the Dockerfile.
