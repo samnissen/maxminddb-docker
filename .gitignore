@@ -1,2 +1,4 @@
 .DS_store
 db/*.sqlite3
+secrets/
+secrets/!.gitignore
