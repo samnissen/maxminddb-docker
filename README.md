@@ -91,28 +91,14 @@ curl -XGET localhost:8080/api -d 'location[country]=USA&location[region]=Ohio&lo
 Maxmind has had to put its database behind login
 for reasons detailed
 in [this issue](https://github.com/samnissen/maxminddb-docker/issues/4).
-This means that the link to download the database is unique to you,
-and might only work for a limited amount of time &ndash;
-see Maxmind documentation for more information.
 
 This results in multiple changes:
 
 1) You must
-[register to Maxmind](https://www.maxmind.com/en/geolite2/signup)
-and retrieve two URLs found on the Maxmind dashboard,
-in the `GeoIP2` > `Download Files` section
-of the Maxmind account page (as of December 2019).
-These URLs must be modified using your API key per Maxmind's instructions.
-(The `token` key has been replaced with `license_key`, for instance.)
+[register to Maxmind](https://www.maxmind.com/en/geolite2/signup) and retrieve license_key.
+It's free. Just generate it.
 
-2) These URLs must be saved in `.txt` files in the `secrets` directory
-with any naming convention you prefer. Note that for this README,
-the files are named:
-- `secrets/geolite2citytar.txt` should contain your unique URL for the GZIP-ed GeoLite2-City database, and
-- `secrets/geolite2citycsv.txt` should contain your unique URL for the ZIP-ed GeoLite2-City-CSV file
-
-3) These links must be used in the `build` to identify your secrets' `src`s.
-The `id`s must remain unchanged, as they correspond to the Dockerfile.
+Use it as `MAXMIND_KEY` in `docker build` command
 
 ### Warning
 During build, the GeoIP2 database is converted into a SQLite database -
@@ -126,11 +112,10 @@ template and add or remove supported languages.
 ```
 git clone git@github.com:samnissen/maxminddb-docker.git
 
-DOCKER_BUILDKIT=1 docker build \
+docker build \
+--build-arg MAXMIND_KEY=your_key \
 --no-cache \
 --progress=plain \
---secret id=geolite2citytar,src=secrets/geolite2citytar.txt \
---secret id=geolite2citycsv,src=secrets/geolite2citycsv.txt \
 --squash \
 -t maxminddb .
 

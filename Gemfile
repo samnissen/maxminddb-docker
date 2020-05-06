@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.6.5'
+ruby '2.6.6'
 
 gem 'sinatra', require: false
 gem "sinatra-param", require: "sinatra/param"
@@ -11,6 +11,7 @@ gem 'settingslogic', '~> 2.0', '>= 2.0.9'
 gem 'maxminddb', '~> 0.1.11'
 gem 'rake'
 gem 'rack', '>= 2.0.6'
+gem 'thin'
 
 group :test, :development do
   gem 'pry'

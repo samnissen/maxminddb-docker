@@ -7,27 +7,23 @@ ENV LANG=C.UTF-8
 ENV LANGUAGE=C.UTF-8
 ENV RACK_ENV=production
 
-RUN apt-get update -qq
-RUN apt-get install -fqq
-RUN apt-get install -yqq build-essential net-tools apt-utils libpq-dev ntp wget git unzip zip
+ARG MAXMIND_KEY
+ENV MAXMIND_KEY=$MAXMIND_KEY
 
-RUN service ntp stop
-RUN apt-get install -yqq fake-hwclock
-RUN ntpd -gq &
-RUN service ntp start
+RUN apt-get update -qq && \
+    apt-get install -fqq && \
+    apt-get install -yqq build-essential net-tools apt-utils libpq-dev ntp git unzip zip
+
+RUN service ntp stop && apt-get install -yqq fake-hwclock && ntpd -gq && service ntp start
 
 RUN mkdir -p /maxminddb
 WORKDIR /maxminddb
 
 COPY . ./
 
-RUN --mount=type=secret,id=geolite2citytar wget -nv -O GeoLite2-City.tar.gz -i /run/secrets/geolite2citytar
-RUN tar -xvzf GeoLite2-City.tar.gz && mv GeoLite2-City_* db/maxminddb
+RUN ./download.sh
 
-RUN --mount=type=secret,id=geolite2citycsv wget -nv -O GeoLite2-City-CSV.zip "$(cat /run/secrets/geolite2citycsv)"
-RUN unzip GeoLite2-City-CSV.zip && mv GeoLite2-City-CSV_* db/GeoLite2-City
-
-RUN bundle install
+RUN gem install bundler:2.1.4 && bundle install
 RUN bundle exec rake db:convert
 
 EXPOSE 8080

@@ -2,3 +2,7 @@
 db/*.sqlite3
 secrets/
 secrets/!.gitignore
+db/maxminddb/
+GeoLite2-City/
+tmp/
+.rakeTasks
