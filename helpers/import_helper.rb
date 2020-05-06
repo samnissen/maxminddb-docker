@@ -6,44 +6,66 @@ module ImportHelper
   CITY_LOCALE_FILENAME_TEMPLATE = Settings.maxmind.csv.city_locale_filename_template
   LOCALES = Settings.maxmind.csv.locales
 
+  def calc_file_lines(path)
+    `wc -l #{path} | awk '{print $1}'`.to_i
+  end
+
   def import_cities_networks_and_locations
-    counter   = 0
-    file_path = FOLDER_PATH + CITY_IPV4_FILENAME
+    puts "Start import_cities_networks_and_locations\n\n"
+
+    file_path       = FOLDER_PATH + CITY_IPV4_FILENAME
+    total_rows      = calc_file_lines(file_path)
+    processed_rows  = 0
+    networks_before = Network.count
 
     import_csv_file(file_path) do |row|
-      next if row['geoname_id'] == row['registered_country_geoname_id']
+      if row['geoname_id'] == row['registered_country_geoname_id']
+        processed_rows += 1
+        print_progress(processed_rows, total_rows)
+        next
+      end
+
       city = City.find_or_create_by(city_id: row['geoname_id'])
-      next if city.network.present?
+      city.create_network!(ip: row['network']) unless city.network.present?
 
-      city.create_network!(ip: row['network'])
+      unless city.location.present?
+        city.create_location!(
+            latitude:        row['latitude'],
+            longitude:       row['longitude'],
+            accuracy_radius: row['accuracy_radius']
+        )
+      end
 
-      city.create_location!(
-        latitude:        row['latitude'],
-        longitude:       row['longitude'],
-        accuracy_radius: row['accuracy_radius']
-      )
-
-      counter += 1
-      puts "Cities, networks and locations: #{counter}"
+      processed_rows += 1
+      print_progress(processed_rows, total_rows)
     end
-
-    return false if Network.count.zero?
-    puts 'Networks and locations was successfully converted.'
-
-    true
+  ensure
+    puts "#{Network.count - networks_before} networks were imported!\n\n\n\n"
   end
 
   def import_translations
-    country_iso_codes = {}
+    puts "Start import_translations\n\n"
 
-    LOCALES.each do |locale|
-      counter   = 0
-      file_path = FOLDER_PATH + CITY_LOCALE_FILENAME_TEMPLATE.gsub('%{locale}', locale)
+    country_iso_codes   = {}
+    files               = LOCALES.map { |l| FOLDER_PATH + CITY_LOCALE_FILENAME_TEMPLATE.gsub('%{locale}', l) }
+    transactions_before = Translation.count
+    total_rows          = files.sum { |f| calc_file_lines(f) }
+    processed_rows      = 0
 
-      import_csv_file(file_path) do |row|
-        next if row['city_name'].blank?
+    files.each do |file|
+      import_csv_file(file) do |row|
+        if row['city_name'].blank?
+          processed_rows += 1
+          print_progress(processed_rows, total_rows)
+          next
+        end
+
         city = City.find_by(city_id: row['geoname_id'])
-        next unless city
+        unless city
+          processed_rows += 1
+          print_progress(processed_rows, total_rows)
+          next
+        end
 
         city.translations.create!(
           locale_code:     row['locale_code'],
@@ -55,24 +77,25 @@ module ImportHelper
           name:            row['city_name']
         )
 
-        counter += 1
-        puts "Translations #{locale}: #{counter}"
+        processed_rows += 1
+        print_progress(processed_rows, total_rows)
       end
     end
-
-    return false if City.count.zero?
-    puts 'Cities was successfully converted.'
-
-    true
+  ensure
+    puts "#{Translation.count - transactions_before} translations were imported!"
   end
 
   private
+
+  def print_progress(processed, total)
+    percent = ((processed / total.to_f) * 100).round(2)
+    puts "Rows #{processed}/#{total - processed}/#{total} - #{percent}%"
+  end
 
   def import_csv_file(file_path)
     return unless file_path
 
     options = { headers: :first_row }
-
     CSV.open( file_path, "r", options ) do |csv|
       csv.each { |row| yield(row) if block_given? }
     end
